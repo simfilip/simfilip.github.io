@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filip Šimek — fotografie</title>
+<meta name="description" content="Fotografie Filipa Šimka — móda a portréty, produkty, sport.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/*
+  VOICE   klidné bílé studio — fotky mluví, text jen podepisuje
+  IDEA    kontaktní arch / tisková mapa fotografa
+  PICTURE samotné fotky v mozaice, každá ve svém tvaru
+  COLOUR  bílá, černá, šedá na popisky
+  TYPE    Archivo Black na jméno, Inter na vše ostatní
+  LAYOUT  obří jméno na dva řádky, pilulky kategorií, sloupcová mozaika, kontakt
+*/
+:root{--ink:#0d0d0d;--muted:#5c5c5c;--bg:#ffffff;--soft:#f0f0f0;--pad:clamp(20px,3vw,40px)}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.page{padding:0 var(--pad);overflow-x:clip}
+
+h1{margin:0;padding-top:var(--pad);font-family:'Archivo Black','Arial Black',sans-serif;font-weight:400;font-size:27vw;line-height:.8;letter-spacing:-.045em;text-transform:lowercase;color:var(--ink)}
+h1 span{display:block}
+
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:clamp(24px,3vw,40px) 0}
+nav button{min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:500 15px Inter,system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent}
+nav button .n{font-size:12px;opacity:.7}
+nav button[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+.grid{display:flex;gap:20px;align-items:flex-start}
+.col{flex:1 1 0;min-width:0}
+figure{margin:0 0 20px;cursor:zoom-in}
+figure .ph{background:var(--soft)}
+figure img{display:block;width:100%;height:auto;opacity:0;transition:opacity .5s ease}
+.grid .empty{flex:1}
+figure img.ok{opacity:1}
+@media (hover:hover){figure:hover img.ok{opacity:.88}}
+.empty{padding:24px 0 72px;color:var(--muted);max-width:520px}
+.empty b{color:var(--ink);font-weight:500}
+
+footer{border-top:1.5px solid var(--ink);margin-top:clamp(32px,5vw,72px);padding:28px 0 40px;display:flex;flex-wrap:wrap;gap:24px 64px;align-items:baseline}
+footer h2{margin:0;flex:1 1 260px;font:400 clamp(36px,5vw,64px)/1 'Archivo Black','Arial Black',sans-serif;letter-spacing:-.03em;text-transform:lowercase}
+.contacts{flex:2 1 320px;display:flex;flex-direction:column;gap:6px;font-size:clamp(20px,2.2vw,28px);line-height:1.3}
+.contacts a{color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.contacts a:hover{color:var(--muted)}
+.copy{margin-top:24px;font-size:13px;color:var(--muted)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+/* Zvětšená fotka */
+.lb{position:fixed;inset:0;z-index:50;background:#ffffff;display:none;flex-direction:column}
+.lb.open{display:flex}
+.lb .stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:60px 16px 8px;touch-action:pan-y}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.lb .bar{display:flex;justify-content:center;gap:16px;padding:14px var(--pad) 20px;font-size:13px;color:var(--muted)}
+.lb button{position:absolute;width:48px;height:48px;display:grid;place-items:center;background:none;border:0;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb .x{top:6px;right:6px}
+.lb .prev{left:6px;top:50%;transform:translateY(-50%)}
+.lb .next{right:6px;top:50%;transform:translateY(-50%)}
+@media (max-width:700px){.lb .prev,.lb .next{display:none}}
+@media (prefers-reduced-motion:reduce){figure img{transition:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header><h1 id="jmeno"></h1></header>
+  <nav id="tabs" aria-label="Kategorie"></nav>
+  <main class="grid" id="grid"></main>
+  <footer>
+    <h2>kontakt</h2>
+    <div class="contacts" id="contacts"></div>
+  </footer>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Zvětšená fotka">
+  <button class="x" type="button" aria-label="Zavřít"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  <button class="prev" type="button" aria-label="Předchozí fotka"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="stage"><img alt=""></div>
+  <button class="next" type="button" aria-label="Další fotka"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="bar"><span id="lbNum"></span></div>
+</div>
+
+<script>
+{
+/* =========================================================
+   NASTAVENÍ — tady se mění jméno, kontakty a kategorie
+   ========================================================= */
+const NASTAVENI = {
+  jmeno: "Filip Šimek",
+  email: "simekfilip@icloud.com",
+  instagram: "sim.filip",          // bez @
+  telefon: "+420 604 489 953",
+
+  // Kategorie = složky ve složce "fotky" na GitHubu (v tomhle pořadí)
+  kategorie: [
+    { slozka: "moda",     nazev: "Móda & portréty" },
+    { slozka: "produkty", nazev: "Produkty" },
+    { slozka: "sport",    nazev: "Sport" },
+    { slozka: "koncerty", nazev: "Koncerty" }
+  ],
+
+  // Vyplní se jen při vlastní doméně; na adrese jmeno.github.io se to pozná samo
+  github: { uzivatel: "", repozitar: "" }
+};
+
+/* ========================================================= */
+
+const IMG = /\.(jpe?g|png|webp|gif|avif)$/i;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const catName = Object.fromEntries(NASTAVENI.kategorie.map((k) => [k.slozka, k.nazev]));
+
+// Jméno na dva řádky
+const slova = NASTAVENI.jmeno.trim().split(/\s+/);
+$("#jmeno").innerHTML = `<span>${esc(slova[0])}</span><span>${esc(slova.slice(1).join(" "))}</span>`;
+document.title = NASTAVENI.jmeno + " — fotografie";
+
+// Kontakty
+const live = !!NASTAVENI.github.uzivatel || location.hostname.endsWith(".github.io");
+const c = [];
+if (NASTAVENI.email) c.push(`<a href="mailto:${esc(NASTAVENI.email)}">${esc(NASTAVENI.email)}</a>`);
+if (NASTAVENI.instagram) c.push(`<a href="https://instagram.com/${esc(NASTAVENI.instagram)}" target="_blank" rel="noopener">@${esc(NASTAVENI.instagram)}</a>`);
+if (NASTAVENI.telefon) c.push(`<a href="tel:${esc(NASTAVENI.telefon.replace(/\s/g, ""))}">${esc(NASTAVENI.telefon)}</a>`);
+if (!c.length && !live) c.push("<span>[tvůj e-mail]</span>", "<span>[tvůj Instagram]</span>", "<span>[tvůj telefon]</span>");
+c.push(`<span class="copy">© ${new Date().getFullYear()} ${esc(NASTAVENI.jmeno)}</span>`);
+$("#contacts").innerHTML = c.join("");
+
+function repo() {
+  const g = NASTAVENI.github;
+  if (g.uzivatel) return { owner: g.uzivatel, repo: g.repozitar || g.uzivatel + ".github.io" };
+  const owner = location.hostname.replace(/\.github\.io$/, "");
+  const seg = location.pathname.split("/").filter(Boolean)[0];
+  return { owner, repo: seg && !seg.includes(".") ? seg : owner + ".github.io" };
+}
+
+// Jeden dotaz na GitHub vrátí seznam všech fotek ve složce "fotky"
+async function nactiZGitHubu() {
+  const r = repo();
+  const key = "fotky:" + r.owner + "/" + r.repo;
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(key) || "null");
+    if (cached && Date.now() - cached.t < 5 * 60 * 1000) return cached.d;
+  } catch (e) {}
+  for (const ref of ["HEAD", "main", "master"]) {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${r.owner}/${r.repo}/git/trees/${ref}?recursive=1`);
+      if (!res.ok) continue;
+      const j = await res.json();
+      const d = (j.tree || []).filter((f) => f.type === "blob" && f.path.startsWith("fotky/") && IMG.test(f.path)).map((f) => f.path);
+      try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), d })); } catch (e) {}
+      return d;
+    } catch (e) {}
+  }
+  return null;
+}
+
+let all = [], view = [], cur = "vse", idx = 0, chyba = false;
+
+function tabs() {
+  const items = [{ slozka: "vse", nazev: "Vše" }, ...NASTAVENI.kategorie]
+    .map((k) => ({ ...k, n: k.slozka === "vse" ? all.length : all.filter((p) => p.cat === k.slozka).length }))
+    .filter((k) => k.slozka === "vse" || k.n > 0);
+  $("#tabs").innerHTML = items.map((k) =>
+    `<button type="button" data-k="${k.slozka}" aria-pressed="${k.slozka === cur}">${esc(k.nazev)}<span class="n">${k.n}</span></button>`
+  ).join("");
+  $("#tabs").querySelectorAll("button").forEach((b) => b.onclick = () => { cur = b.dataset.k; tabs(); render(); });
+}
+
+function pocetSloupcu() {
+  const w = $("#grid").clientWidth;
+  return w >= 900 ? 3 : w >= 560 ? 2 : 1;
+}
+let sloupcu = 0;
+
+function render() {
+  view = all.filter((p) => cur === "vse" || p.cat === cur);
+  const g = $("#grid");
+  if (!view.length) {
+    g.innerHTML = chyba
+      ? `<p class="empty"><b>Fotky se teď nepodařilo načíst.</b><br>Zkuste stránku za chvíli obnovit.</p>`
+      : `<p class="empty"><b>Zatím tu nejsou žádné fotky.</b></p>`;
+    return;
+  }
+  // Každá další fotka jde do nejkratšího sloupce → pořadí se čte zleva doprava a shora dolů
+  sloupcu = pocetSloupcu();
+  const cols = Array.from({ length: sloupcu }, () => ({ h: 0, html: [] }));
+  view.forEach((p, i) => {
+    const c = cols.reduce((a, b) => (b.h < a.h - 0.01 ? b : a));
+    const alt = esc(catName[p.cat] || "Fotografie");
+    const srcset = p.thumb && !p.crop ? `srcset="${p.thumb} ${p.tw}w, ${p.src} ${p.w}w" sizes="(min-width: 900px) 33vw, (min-width: 560px) 50vw, 100vw"` : "";
+    const wh = p.tw ? `width="${p.tw}" height="${p.th}"` : "";
+    c.html.push(`<figure data-i="${i}"><div class="ph"><img src="${p.thumb || p.src}" ${srcset} ${wh} alt="${alt}" loading="${i < 6 ? "eager" : "lazy"}" decoding="async"></div></figure>`);
+    c.h += (p.th || p.h || 5) / (p.tw || p.w || 4) + 0.05;
+  });
+  g.innerHTML = cols.map((c) => `<div class="col">${c.html.join("")}</div>`).join("");
+  g.querySelectorAll("img").forEach((im) => {
+    im.onload = () => im.classList.add("ok");
+    im.onerror = () => im.closest("figure").remove();
+    if (im.complete && im.naturalWidth) im.classList.add("ok");
+  });
+  g.querySelectorAll("figure").forEach((f) => f.onclick = () => openLb(+f.dataset.i));
+}
+window.addEventListener("resize", () => { if (view.length && pocetSloupcu() !== sloupcu) render(); });
+
+// Zvětšená fotka
+const lb = $("#lb"), lbImg = lb.querySelector("img");
+function show() {
+  const p = view[idx];
+  lbImg.src = p.src;
+  lbImg.alt = catName[p.cat] || "Fotografie";
+  $("#lbNum").textContent = idx + 1 + " / " + view.length;
+}
+function openLb(i) { idx = i; show(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; }
+function step(d) { idx = (idx + d + view.length) % view.length; show(); }
+lb.querySelector(".x").onclick = closeLb;
+lb.querySelector(".prev").onclick = (e) => { e.stopPropagation(); step(-1); };
+lb.querySelector(".next").onclick = (e) => { e.stopPropagation(); step(1); };
+lb.querySelector(".stage").onclick = (e) => { if (e.target !== lbImg) closeLb(); };
+document.addEventListener("keydown", (e) => {
+  if (!lb.classList.contains("open")) return;
+  if (e.key === "Escape") closeLb();
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+let sx = null;
+lb.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+lb.addEventListener("touchend", (e) => {
+  if (sx === null) return;
+  const dx = e.changedTouches[0].clientX - sx;
+  if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+  sx = null;
+});
+
+// Start: seznam fotek je v souboru fotky.json (pořadí + rozměry); záloha = výpis z GitHubu
+(async () => {
+  const order = NASTAVENI.kategorie.map((k) => k.slozka);
+  let list = null;
+  try {
+    const res = await fetch("fotky.json", { cache: "no-cache" });
+    if (res.ok) list = await res.json();
+  } catch (e) {}
+  if (Array.isArray(list)) {
+    all = list.filter((p) => order.includes(p.cat));
+  } else if (live) {
+    const paths = await nactiZGitHubu();
+    if (paths === null) chyba = true;
+    all = (paths || [])
+      .map((path) => ({ path, cat: path.split("/")[1] }))
+      .filter((p) => order.includes(p.cat))
+      .sort((a, b) => a.path.split("/").pop().localeCompare(b.path.split("/").pop(), "cs", { numeric: true }))
+      .map((p) => ({ cat: p.cat, src: p.path.split("/").map(encodeURIComponent).join("/") }));
+  }
+  tabs();
+  render();
+})();
+}
+</script>
+</body>
+</html>
