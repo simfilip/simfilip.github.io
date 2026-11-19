@@ -128,7 +128,7 @@ if (NASTAVENI.email) c.push(`<a href="mailto:${esc(NASTAVENI.email)}">${esc(NAST
 if (NASTAVENI.instagram) c.push(`<a href="https://instagram.com/${esc(NASTAVENI.instagram)}" target="_blank" rel="noopener">@${esc(NASTAVENI.instagram)}</a>`);
 if (NASTAVENI.telefon) c.push(`<a href="tel:${esc(NASTAVENI.telefon.replace(/\s/g, ""))}">${esc(NASTAVENI.telefon)}</a>`);
 if (!c.length && !live) c.push("<span>[tvůj e-mail]</span>", "<span>[tvůj Instagram]</span>", "<span>[tvůj telefon]</span>");
-c.push(`<span class="copy">© ${new Date().getFullYear()} ${esc(NASTAVENI.jmeno)}</span>`);
+c.push(`<span class="copy">© ${esc(NASTAVENI.jmeno)} 2024</span>`);
 $("#contacts").innerHTML = c.join("");
 
 function repo() {
