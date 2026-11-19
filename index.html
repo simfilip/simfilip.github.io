@@ -234,7 +234,9 @@ function vyrovnej() {
   cols.forEach((c) => c.items.forEach((it) => { it.el.classList.remove("fit"); it.el.firstElementChild.style.aspectRatio = ""; }));
   if (n < 2) return;
   const nat = cols.map((c) => c.items.reduce((s, it) => s + it.r * colW, 0) + MEZERA * (c.items.length - 1));
-  const tail = cols.map((c) => c.items.slice(-3).reduce((s, it) => s + it.r * colW, 0));
+  // fotky označené "keep" se nedořezávají (musí být vidět celé) — dorovná se to na ostatních
+  const adj = cols.map((c) => c.items.filter((it) => !it.p.keep));
+  const tail = adj.map((a) => Math.max(1, a.slice(-3).reduce((s, it) => s + it.r * colW, 0)));
   const lo = Math.min(...nat), hi = Math.max(...nat);
   let cil = hi, nej = Infinity;
   for (let s = 0; s <= 60; s++) {
@@ -244,17 +246,18 @@ function vyrovnej() {
   }
   cols.forEach((c, k) => {
     const delta = cil - nat[k];
-    if (Math.abs(delta) < 1) return;
-    const max = Math.min(6, c.items.length);
-    let m = Math.min(3, c.items.length), f = 1;
+    const a = adj[k];
+    if (Math.abs(delta) < 1 || !a.length) return;
+    const max = Math.min(6, a.length);
+    let m = Math.min(3, a.length), f = 1;
     for (;;) {
-      const S = c.items.slice(-m).reduce((s, it) => s + it.r * colW, 0);
+      const S = a.slice(-m).reduce((s, it) => s + it.r * colW, 0);
       f = 1 + delta / S;
       if ((f >= 0.72 && f <= 1.4) || m >= max) break;
       m++;
     }
     f = Math.min(1.4, Math.max(0.72, f));
-    c.items.slice(-m).forEach((it) => {
+    a.slice(-m).forEach((it) => {
       it.el.classList.add("fit");
       it.el.firstElementChild.style.aspectRatio = `1 / ${(it.r * f).toFixed(4)}`;
     });
