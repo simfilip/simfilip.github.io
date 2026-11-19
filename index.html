@@ -190,7 +190,6 @@ function render() {
     return;
   }
   // Každá další fotka jde do nejkratšího sloupce → pořadí se čte zleva doprava a shora dolů.
-  // Dvě hodně bílé fotky se nedávají pod sebe (splývaly by v jednu bílou plochu).
   sloupcu = pocetSloupcu();
   sirka = g.clientWidth;
   const colW = (sirka - MEZERA * (sloupcu - 1)) / sloupcu;
@@ -198,10 +197,15 @@ function render() {
   view.forEach((p, i) => {
     const r = (p.th || p.h || 5) / (p.tw || p.w || 4);
     const byH = cs.map((c, k) => k).sort((a, b) => cs[a].h - cs[b].h || a - b);
+    // pod sebe nedávat dvě hodně bílé fotky ani dvě fotky ze stejného focení
+    const ok = (j) => {
+      const last = cs[j].items[cs[j].items.length - 1];
+      return !last || !((p.white && last.p.white) || (p.serie && last.p.serie === p.serie));
+    };
     let k = byH[0];
-    if (p.white) {
-      const ok = byH.find((j) => { const last = cs[j].items[cs[j].items.length - 1]; return !last || !last.p.white; });
-      if (ok !== undefined && cs[ok].h - cs[k].h < 1.5 * colW) k = ok;
+    if (!ok(k)) {
+      const alt = byH.find(ok);
+      if (alt !== undefined && cs[alt].h - cs[k].h < 1.5 * colW) k = alt;
     }
     cs[k].items.push({ p, i, r });
     cs[k].h += r * colW + MEZERA;
